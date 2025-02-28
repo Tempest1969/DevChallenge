@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectSphere Developer Challenge</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #f39c12;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1, h2, h3 {
+            color: var(--dark-color);
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+        
+        .container:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        textarea, input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            height: 400px;
+            font-family: monospace;
+        }
+        
+        .code-editor {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0;
+        }
+        
+        code {
+            font-family: monospace;
+        }
+        
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            padding: 15px 10px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin: 0 5px;
+            position: relative;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+        
+        .progress-step.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .progress-step.completed {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .progress-step::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #ecf0f1;
+            z-index: 1;
+            transition: var(--transition);
+        }
+        
+        .progress-step.active::after {
+            border-left-color: var(--primary-color);
+        }
+        
+        .progress-step.completed::after {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .progress-step:last-child::after {
+            display: none;
+        }
+        
+        .method-container {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .method-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .method-description {
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .test-item {
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        
+        .test-passed {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 3px solid var(--success-color);
+        }
+        
+        .test-failed {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid var(--danger-color);
+        }
+        
+        .highlight {
+            background-color: #ffeaa7;
+            padding: 2px;
+            border-radius: 2px;
+        }
+        
+        #contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #certificate {
+            text-align: center;
+            border: 2px solid var(--dark-color);
+            padding: 40px 30px;
+            margin: 30px auto;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #certificate h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        #certificate::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+        }
+        
+        #certificate::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(46, 204, 113, 0.1);
+            border-radius: 50%;
+        }
+        
+        .methods-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .methods-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .methods-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 40px;
+        }
+        
+        .announcement {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .story-block {
+            background-color: rgba(52, 152, 219, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            font-style: italic;
+        }
+        
+        .mission-objectives {
+            background-color: rgba(46, 204, 113, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .mission-objectives h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-container {
+                flex-direction: column;
+            }
+            
+            .progress-step {
+                margin-bottom: 10px;
+            }
+            
+            .progress-step::after {
+                display: none;
+            }
+            
+            textarea {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-step active" id="step-intro">Mission Briefing</div>
+        <div class="progress-step" id="step-challenge">Code Implementation</div>
+        <div class="progress-step" id="step-testing">System Validation</div>
+        <div class="progress-step" id="step-contact">Mission Complete</div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="container" id="intro-section">
+        <div class="header-logo">
+            <div class="logo">🌐</div>
+            <h1>ConnectSphere: The Next-Gen Social Platform</h1>
+        </div>
+        
+        <div class="announcement">
+            <strong>CONFIDENTIAL:</strong> Developer Recruitment Challenge - Access Level 3 Required
+        </div>
+        
+        <div class="story-block">
+            <p>"The social media landscape is fractured and toxic. People deserve better. ConnectSphere aims to revolutionize how humans connect online with a focus on meaningful interactions and privacy-first design. We need talented engineers who can think beyond the status quo."</p>
+            <p style="text-align: right;">— ConnectSphere Founder</p>
+        </div>
+        
+        <h2>Mission Overview</h2>
+        <p>Welcome to the ConnectSphere developer challenge. Our platform is gaining traction fast, and we need skilled developers who can build robust social features while maintaining our core principles of privacy, performance, and positive user experiences.</p>
+        
+        <div class="mission-objectives">
+            <h3>Your Mission</h3>
+            <p>You've been tasked with implementing the core functionality for our social network backend. The foundation is in place, but several critical methods need your expertise. Your code will be evaluated not just for functionality, but for efficiency, error handling, and understanding of social dynamics.</p>
+        </div>
+        
+        <h2>Technical Requirements</h2>
+        <p>You'll be implementing key methods in a <code>SocialNetwork</code> class that powers our platform:</p>
+        <ul class="methods-list">
+            <li>User management with privacy controls</li>
+            <li>Connection systems for building networks</li>
+            <li>Content creation and interaction mechanisms</li>
+            <li>Feed generation with relevance algorithms</li>
+            <li>Search functionality for discovery</li>
+            <li>Advanced connection recommendations</li>
+        </ul>
+        
+        <p>Are you ready to help build the future of social networking? Accept the mission to continue.</p>
+        
+        <button id="start-challenge-btn">Accept Mission</button>
+    </div>
+
+    <!-- Challenge Section -->
+    <div class="container hidden" id="challenge-section">
+        <h2>ConnectSphere Core System Implementation</h2>
+        <p>The foundation of our social network is the <code>SocialNetwork</code> class. Your task is to implement the missing functionality in each of the specified methods.</p>
+        
+        <div class="method-container">
+            <div class="method-header">System Requirements:</div>
+            <p>Your implementation must adhere to these guidelines:</p>
+            <ol>
+                <li>All user data must be correctly managed and protected</li>
+                <li>Connections between users must be properly validated</li>
+                <li>Content interactions must follow the specified constraints</li>
+                <li>Feed algorithms must prioritize relevant content</li>
+                <li>The system must handle edge cases gracefully</li>
+                <li>Bonus: The recommendation algorithm should suggest meaningful connections</li>
+            </ol>
+        </div>
+        
+        <div class="code-editor">
+            <textarea id="code-editor"></textarea>
+        </div>
+        
+        <div class="container">
+            <button id="run-tests-btn">Run System Tests</button>
+            <button id="submit-solution-btn" disabled>Submit Implementation</button>
+            <div id="test-results" class="test-results hidden"></div>
+        </div>
+    </div>
+
+    <!-- Testing Section -->
+    <div class="container hidden" id="testing-section">
+        <h2>System Validation Results</h2>
+        <p>Our automated testing suite has evaluated your implementation against the ConnectSphere requirements:</p>
+        
+        <div id="detailed-test-results"></div>
+        
+        <div class="container">
+            <button id="goto-contact-btn">Complete Mission</button>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="container hidden" id="contact-section">
+        <div id="certificate">
+            <h2>Mission Accomplished!</h2>
+            <p>You've successfully implemented the core functionality for ConnectSphere.</p>
+            <p>Your code demonstrates the skills and approach we value at our company.</p>
+        </div>
+        
+        <h2>Join Our Team</h2>
+        <p>We're impressed with your skills and problem-solving approach. ConnectSphere is expanding rapidly, and we're looking for developers like you who understand both the technical and human aspects of social networking.</p>
+        
+        <form id="contact-form" action="https://formsubmit.co/YOUR_EMAIL_HERE" method="POST">
+            <input type="hidden" name="_subject" value="ConnectSphere Developer Challenge Submission">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" id="solution-code" name="solution_code" value="">
+            
+            <div>
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div>
+                <label for="email">Email Contact:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div>
+                <label for="message">Tell us about yourself (optional):</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+            </div>
+            
+            <button type="submit" id="submit-contact">Submit Application</button>
+        </form>
+    </div>
+
+    <script>
+        // DOM Elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const startChallengeBtn = document.getElementById('start-challenge-btn');
+            const runTestsBtn = document.getElementById('run-tests-btn');
+            const submitSolutionBtn = document.getElementById('submit-solution-btn');
+            const gotoContactBtn = document.getElementById('goto-contact-btn');
+            const codeEditor = document.getElementById('code-editor');
+            const testResults = document.getElementById('test-results');
+            const detailedTestResults = document.getElementById('detailed-test-results');
+            const contactForm = document.getElementById('contact-form');
+            const solutionCodeField = document.getElementById('solution-code');
+            
+            // Sections
+            const introSection = document.getElementById('intro-section');
+            const challengeSection = document.getElementById('challenge-section');
+            const testingSection = document.getElementById('testing-section');
+            const contactSection = document.getElementById('contact-section');
+            
+            // Progress steps
+            const stepIntro = document.getElementById('step-intro');
+            const stepChallenge = document.getElementById('step-challenge');
+            const stepTesting = document.getElementById('step-testing');
+            const stepContact = document.getElementById('step-contact');
+            
+            // Initialize code editor with the initial code
+            codeEditor.value = initialCode;
+            
+            // Navigation between sections
+            startChallengeBtn.addEventListener('click', function() {
+                introSection.classList.add('hidden');
+                challengeSection.classList.remove('hidden');
+                stepIntro.classList.remove('active');
+                stepIntro.classList.add('completed');
+                stepChallenge.classList.add('active');
+            });
+            
+            runTestsBtn.addEventListener('click', function() {
+                // Evaluate the code
+                try {
+                    // Create a function that will run the tests with the user's code
+                    const testFunction = new Function(`
+                        ${codeEditor.value}
+                        return runTests();
+                    `);
+                    
+                    const results = testFunction();
+                    
+                    // Display results summary
+                    testResults.classList.remove('hidden');
+                    if (results.allPassed) {
+                        testResults.classList.remove('failure');
+                        testResults.classList.add('success');
+                        testResults.innerHTML = '<p>🎉 All system tests passed! The implementation meets ConnectSphere requirements.</p>';
+                        submitSolutionBtn.disabled = false;
+                    } else {
+                        testResults.classList.remove('success');
+                        testResults.classList.add('failure');
+                        testResults.innerHTML = '<p>❌ Some tests failed. Please review the results and revise your implementation.</p>';
+                        submitSolutionBtn.disabled = true;
+                    }
+                    
+                    // Display detailed results
+                    let detailedHtml = '<div>';
+                    results.testResults.forEach(test => {
+                        detailedHtml += `<div class="test-item ${test.passed ? 'test-passed' : 'test-failed'}">
+                            ${test.passed ? '✅' : '❌'} ${test.name}: ${test.message}
+                        </div>`;
+                    });
+                    detailedHtml += '</div>';
+                    detailedTestResults.innerHTML = detailedHtml;
+                    
+                } catch (error) {
+                    testResults.classList.remove('hidden');
+                    testResults.classList.remove('success');
+                    testResults.classList.add('failure');
+                    testResults.innerHTML = `<p>❌ System error during execution: ${error.message}</p>`;
+                    submitSolutionBtn.disabled = true;
+                }
+            });
+            
+            submitSolutionBtn.addEventListener('click', function() {
+                challengeSection.classList.add('hidden');
+                testingSection.classList.remove('hidden');
+                stepChallenge.classList.remove('active');
+                stepChallenge.classList.add('completed');
+                stepTesting.classList.add('active');
+                
+                // Store the solution code in the hidden form field
+                if (solutionCodeField) {
+                    solutionCodeField.value = codeEditor.value;
+                }
+            });
+            
+            gotoContactBtn.addEventListener('click', function() {
+                testingSection.classList.add('hidden');
+                contactSection.classList.remove('hidden');
+                stepTesting.classList.remove('active');
+                stepTesting.classList.add('completed');
+                stepContact.classList.add('active');
+            });
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    // In a real implementation, this would be handled by FormSubmit.co
+                    // This is just for the local testing experience
+                    if (window.location.protocol === 'file:') {
+                        e.preventDefault();
+                        alert('Form submission simulated! In the live version, this would be sent to the recruitment team.');
+                        contactForm.innerHTML = `
+                            <h3>Application Received!</h3>
+                            <p>Thank you for completing the ConnectSphere developer challenge.</p>
+                            <p>Our team will review your implementation and be in touch soon.</p>
+                        `;
+                    }
+                });
+            }
+        });
+        
+        // Initial class definition and test suite
+        const initialCode = `/**
+ * ConnectSphere - Social Network Core Implementation
+ * =================================================
+ * 
+ * As a ConnectSphere developer, you're tasked with implementing
+ * the core functionality that powers our next-generation social platform.
+ * Your code will enable meaningful connections between users while
+ * maintaining privacy and promoting positive interactions.
+ * 
+ * MISSION OBJECTIVES:
+ * ------------------
+ * Implement the missing functionality in each method of the SocialNetwork class.
+ * Comments above each method describe what it should do. The test suite at the
+ * bottom will automatically validate your implementation.
+ * 
+ * EVALUATION CRITERIA:
+ * -------------------
+ * 1. Functionality: All tests must pass
+ * 2. Efficiency: Optimize for performance
+ * 3. Security: Properly validate all inputs
+ * 4. Quality: Write clean, maintainable code
+ * 5. Edge cases: Handle unexpected scenarios gracefully
+ */
+
+class SocialNetwork {
+  constructor() {
+    // Users are stored with the format: { id, username, bio }
+    this.users = new Map();
+    
+    // Connections between users (friendships/follows)
+    // Map of userID -> Set of connected userIDs
+    this.connections = new Map();
+    
+    // Posts with format: { id, userId, content, timestamp, likes }
+    this.posts = [];
+    
+    // Comments with format: { id, postId, userId, content, timestamp }
+    this.comments = [];
+    
+    // Keep track of the next available IDs
+    this.nextUserId = 1;
+    this.nextPostId = 1;
+    this.nextCommentId = 1;
+  }
+  
+  /**
+   * Creates a new user in the system
+   * @param {string} username - The user's unique username
+   * @param {string} bio - A short biography for the user
+   * @returns {object} The created user object
+   */
+  createUser(username, bio) {
+    // TODO: Implement this method
+    // 1. Check if the username already exists (case insensitive)
+    // 2. If it does, throw an error
+    // 3. Otherwise, create a new user with the next available ID
+    // 4. Initialize an empty connections set for this user
+    // 5. Return the newly created user object
+  }
+  
+  /**
+   * Creates a connection between two users (friendship or follow)
+   * @param {number} userId - The ID of the user initiating the connection
+   * @param {number} targetUserId - The ID of the user to connect with
+   * @returns {boolean} True if the connection was created, false otherwise
+   */
+  createConnection(userId, targetUserId) {
+    // TODO: Implement this method
+    // 1. Verify both users exist
+    // 2. Ensure users aren't connecting to themselves
+    // 3. Check if connection already exists
+    // 4. Create the connection and return true if successful
+  }
+  
+  /**
+   * Retrieves all connections (friends/follows) for a given user
+   * @param {number} userId - The ID of the user
+   * @returns {array} Array of user objects that the specified user is connected to
+   */
+  getConnections(userId) {
+    // TODO: Implement this method
+    // 1. Verify the user exists
+    // 2. Return an array of user objects (not just IDs) that this user is connected to
+    // 3. Return empty array if user has no connections
+  }
+  
+  /**
+   * Creates a new post for a user
+   * @param {number} userId - The ID of the user creating the post
+   * @param {string} content - The content of the post
+   * @returns {object} The created post object
+   */
+  createPost(userId, content) {
+    // TODO: Implement this method
+    // 1. Verify the user exists
+    // 2. Create a new post with the next available ID
+    // 3. Set the timestamp to the current time
+    // 4. Initialize likes to an empty array
+    // 5. Add the post to the posts array
+    // 6. Return the newly created post
+  }
+  
+  /**
+   * Adds a like to a post
+   * @param {number} postId - The ID of the post to like
+   * @param {number} userId - The ID of the user liking the post
+   * @returns {boolean} True if the like was added, false otherwise
+   */
+  likePost(postId, userId) {
+    // TODO: Implement this method
+    // 1. Find the post by ID
+    // 2. Verify the user exists
+    // 3. Check if user already liked this post
+    // 4. If not, add the user's ID to the post's likes array
+    // 5. Return true if successful, false otherwise
+  }
+  
+  /**
+   * Adds a comment to a post
+   * @param {number} postId - The ID of the post to comment on
+   * @param {number} userId - The ID of the user commenting
+   * @param {string} content - The content of the comment
+   * @returns {object} The created comment object
+   */
+  addComment(postId, userId, content) {
+    // TODO: Implement this method
+    // 1. Find the post by ID
+    // 2. Verify the user exists
+    // 3. Create a new comment with the next available ID
+    // 4. Set the timestamp to the current time
+    // 5. Add the comment to the comments array
+    // 6. Return the newly created comment
+  }
+  
+  /**
+   * Retrieves the feed for a given user, which includes:
+   * - Posts from the user
+   * - Posts from users they are connected to
+   * @param {number} userId - The ID of the user
+   * @returns {array} Array of post objects, sorted by timestamp (newest first)
+   */
+  getFeed(userId) {
+    // TODO: Implement this method
+    // 1. Verify the user exists
+    // 2. Get all posts from the user and their connections
+    // 3. For each post, include the author's username
+    // 4. For each post, include the number of likes and comments
+    // 5. Sort posts by timestamp (newest first)
+    // 6. Return the sorted array of posts
+  }
+  
+  /**
+   * Searches for users whose username or bio contains the given query
+   * @param {string} query - The search query
+   * @returns {array} Array of matching user objects
+   */
+  searchUsers(query) {
+    // TODO: Implement this method
+    // 1. Convert query to lowercase for case-insensitive search
+    // 2. Filter users whose username or bio contains the query
+    // 3. Return the array of matching users
+  }
+  
+  /**
+   * BONUS CHALLENGE: Recommends new connections for a user based on 
+   * "friends of friends" who the user is not already connected to
+   * @param {number} userId - The ID of the user
+   * @param {number} limit - Maximum number of recommendations to return
+   * @returns {array} Array of recommended user objects
+   */
+  recommendConnections(userId, limit = 5) {
+    // TODO: Implement this bonus method
+    // 1. Verify the user exists
+    // 2. Find all "friends of friends" who the user is not already connected to
+    // 3. Sort by the number of mutual connections (highest first)
+    // 4. Return up to 'limit' recommended users
+  }
+}
+
+// Test suite
+function runTests() {
+  const socialNetwork = new SocialNetwork();
+  
+  console.log("Running system validation tests...");
+  let testResults = [];
+  let allPassed = true;
+  
+  // Test user creation
+  try {
+    const alice = socialNetwork.createUser("alice", "I love coding");
+    testResults.push({ name: "User Creation", passed: true, message: "Created user Alice successfully" });
+    
+    const bob = socialNetwork.createUser("bob", "Photography enthusiast");
+    testResults.push({ name: "Multiple User Creation", passed: true, message: "Created user Bob successfully" });
+    
+    const charlie = socialNetwork.createUser("charlie", "Music producer");
+    
+    // Test duplicate username
+    try {
+      socialNetwork.createUser("alice", "Duplicate username");
+      testResults.push({ name: "Username Validation", passed: false, message: "Should not allow duplicate usernames" });
+      allPassed = false;
+    } catch (e) {
+      testResults.push({ name: "Username Validation", passed: true, message: "Correctly prevented duplicate username" });
+    }
+    
+    // Verify user IDs
+    const userIdTest = alice.id === 1 && bob.id === 2;
+    testResults.push({ 
+      name: "User ID Assignment", 
+      passed: userIdTest, 
+      message: userIdTest ? "User IDs assigned correctly" : "User IDs not assigned correctly" 
+    });
+    if (!userIdTest) allPassed = false;
+    
+    // Test connections
+    const connection1 = socialNetwork.createConnection(alice.id, bob.id);
+    testResults.push({ 
+      name: "Connection Creation", 
+      passed: connection1 === true, 
+      message: connection1 === true ? "Connection created successfully" : "Failed to create connection" 
+    });
+    if (connection1 !== true) allPassed = false;
+    
+    const connection2 = socialNetwork.createConnection(bob.id, charlie.id);
+    
+    // Test self-connection
+    const selfConnection = socialNetwork.createConnection(alice.id, alice.id);
+    testResults.push({ 
+      name: "Self-Connection Prevention", 
+      passed: selfConnection === false, 
+      message: selfConnection === false ? "Correctly prevented self connection" : "Failed to prevent self connection" 
+    });
+    if (selfConnection !== false) allPassed = false;
+    
+    // Test duplicate connection
+    const duplicateConnection = socialNetwork.createConnection(alice.id, bob.id);
+    testResults.push({ 
+      name: "Duplicate Connection Prevention", 
+      passed: duplicateConnection === false, 
+      message: duplicateConnection === false ? "Correctly prevented duplicate connection" : "Failed to prevent duplicate connection"
+    });
+    if (duplicateConnection !== false) allPassed = false;
+    
+    // Test getting connections
+    const aliceConnections = socialNetwork.getConnections(alice.id);
+    const connectionTest = aliceConnections.length === 1 && aliceConnections[0].username === "bob";
+    testResults.push({ 
+      name: "Connection Retrieval", 
+      passed: connectionTest, 
+      message: connectionTest ? "Correctly retrieved connections" : "Failed to retrieve connections correctly" 
+    });
+    if (!connectionTest) allPassed = false;
+    
+    // Test posts
+    const post1 = socialNetwork.createPost(alice.id, "Hello world!");
+    const postTest = post1.id === 1 && post1.userId === alice.id && post1.content === "Hello world!";
+    testResults.push({ 
+      name: "Post Creation", 
+      passed: postTest, 
+      message: postTest ? "Post created successfully" : "Failed to create post correctly" 
+    });
+    if (!postTest) allPassed = false;
+    
+    const post2 = socialNetwork.createPost(bob.id, "Check out my new photo");
+    
+    // Test invalid post
+    try {
+      socialNetwork.createPost(999, "Invalid user post");
+      testResults.push({ name: "Post Validation", passed: false, message: "Should not allow posts from non-existent users" });
+      allPassed = false;
+    } catch (e) {
+      testResults.push({ name: "Post Validation", passed: true, message: "Correctly prevented invalid post" });
+    }
+    
+    // Test likes
+    const like1 = socialNetwork.likePost(post1.id, bob.id);
+    testResults.push({ 
+      name: "Post Interaction - Like", 
+      passed: like1 === true, 
+      message: like1 === true ? "Like added successfully" : "Failed to add like" 
+    });
+    if (like1 !== true) allPassed = false;
+    
+    // Test duplicate like
+    const duplicateLike = socialNetwork.likePost(post1.id, bob.id);
+    testResults.push({ 
+      name: "Duplicate Like Prevention", 
+      passed: duplicateLike === false, 
+      message: duplicateLike === false ? "Correctly prevented duplicate like" : "Failed to prevent duplicate like" 
+    });
+    if (duplicateLike !== false) allPassed = false;
+    
+    // Test comments
+    const comment1 = socialNetwork.addComment(post1.id, bob.id, "Great post!");
+    const commentTest = comment1.postId === post1.id && comment1.userId === bob.id && comment1.content === "Great post!";
+    testResults.push({ 
+      name: "Post Interaction - Comment", 
+      passed: commentTest, 
+      message: commentTest ? "Comment added successfully" : "Failed to add comment correctly" 
+    });
+    if (!commentTest) allPassed = false;
+    
+    // Test feed
+    const feed = socialNetwork.getFeed(alice.id);
+    const feedLengthTest = feed.length === 2; // Should have Alice's post and Bob's post (connected to Alice)
+    testResults.push({ 
+      name: "Feed Generation", 
+      passed: feedLengthTest, 
+      message: feedLengthTest ? "Feed generated with correct number of posts" : "Feed has incorrect number of posts" 
+    });
+    if (!feedLengthTest) allPassed = false;
+    
+    const sortTest = feed[0].timestamp >= feed[1].timestamp;
+    testResults.push({ 
+      name: "Content Sorting Algorithm", 
+      passed: sortTest, 
+      message: sortTest ? "Feed correctly sorted by timestamp" : "Feed not sorted correctly" 
+    });
+    if (!sortTest) allPassed = false;
+    
+    // Test search
+    const searchResults = socialNetwork.searchUsers("photo");
+    const searchTest = searchResults.length === 1 && searchResults[0].username === "bob";
+    testResults.push({ 
+      name: "User Discovery", 
+      passed: searchTest, 
+      message: searchTest ? "Search returned correct results" : "Search returned incorrect results" 
+    });
+    if (!searchTest) allPassed = false;
+    
+    // Test recommendations (bonus)
+    const dave = socialNetwork.createUser("dave", "Tech enthusiast");
+    const eve = socialNetwork.createUser("eve", "Gamer");
+    socialNetwork.createConnection(charlie.id, dave.id); // Charlie -> Dave
+    socialNetwork.createConnection(dave.id, eve.id); // Dave -> Eve
+    
+    try {
+      const recommendations = socialNetwork.recommendConnections(alice.id, 2);
+      const recTest = recommendations.length > 0;
+      testResults.push({ 
+        name: "Connection Recommendations (Bonus)", 
+        passed: recTest, 
+        message: recTest ? "Successfully generated recommendations" : "Failed to generate recommendations" 
+      });
+      if (!recTest) allPassed = false;
+      
+      // Check if Charlie is recommended (should be friend of friend)
+      const charlieRec = recommendations.some(user => user.username === "charlie");
+      testResults.push({ 
+        name: "Recommendation Quality (Bonus)", 
+        passed: charlieRec, 
+        message: charlieRec ? "Recommendations include friends of friends" : "Recommendations missing expected users" 
+      });
+      if (!charlieRec) allPassed = false;
+    } catch (e) {
+      testResults.push({ 
+        name: "Connection Recommendations (Bonus)", 
+        passed: false, 
+        message: "Error in recommendations implementation: " + e.message 
+      });
+      allPassed = false;
+    }
+    
+  } catch (e) {
+    testResults.push({ name: "Basic Functionality", passed: false, message: "Critical error: " + e.message });
+    allPassed = false;
+  }
+  
+  return { allPassed, testResults };
+}
